@@ -22,8 +22,12 @@ class Program
         app.Use(
             async (context, next) =>
             {
-                var remoteIp = context.Connection.RemoteIpAddress?.ToString();
-                if (!allowedIps.Contains(remoteIp))
+                var remoteIp = context.Connection.RemoteIpAddress;
+                var ip =
+                    remoteIp?.IsIPv4MappedToIPv6 == true
+                        ? remoteIp.MapToIPv4().ToString()
+                        : remoteIp?.ToString();
+                if (!allowedIps.Contains(ip))
                 {
                     Console.WriteLine($"Forbidden request from {remoteIp}");
                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
